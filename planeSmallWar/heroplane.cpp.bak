@@ -1,0 +1,131 @@
+#include "heroplane.h"
+#include"config.h"
+#include"QDebug"
+#include<QTimer>
+HeroPlane::HeroPlane()
+{
+    this->m_pic.load(HeroPath);
+    this->m_y=GAME_HEIGHT-m_pic.height();
+    this->m_x=(GAME_WIDTH-m_pic.width())/2;
+    m_rect.setWidth(m_pic.width()/2);
+    m_rect.setHeight(m_pic.height()/2);
+    m_rect.moveTo(m_x+BOX_OFFSET, m_y+BOX_OFFSET);
+    bullet_timer.setInterval(BULLET_INTERVAL);
+    bullet_timer.start();
+    m_hp = HP_HERO;
+    m_alive = true;
+    shoot = new QSoundEffect();
+    shoot->setSource(QUrl::fromLocalFile(SOUND_BULLET_SHOOT));
+    shoot->setVolume(1.0);
+    m_score=0;
+    diesound.setSource(QUrl::fromLocalFile(":/images/Sound_die.wav"));
+    hurtsound.setSource(QUrl::fromLocalFile(":/images/Sound_hurt.wav"));
+    angle=0;
+    setBulletAngle(angle,l_str);
+    setBulletAngle(-angle,r_str);
+    angle = 10;
+    setBulletAngle(-angle,l_til);
+    setBulletAngle(angle,r_til);
+}
+//创建一颗子弹
+void HeroPlane::creatBullet()
+{
+    //根据子弹种类发射不同子弹
+    switch (bullKind) {
+    case NORMAL:
+        creatOneBull(m_x+m_pic.width()/2-l_str[0].m_pic.width(),m_y,l_str);
+        creatOneBull(this->m_x+this->m_pic.width()/2,this->m_y,r_str);
+        break;
+    case SAOSHE:
+        creatOneBull(m_x+m_pic.width()/2-l_str[0].m_pic.width(),m_y,l_str);
+        creatOneBull(this->m_x+this->m_pic.width()/2,this->m_y,r_str);
+        creatOneBull(m_x+m_pic.width()/2-l_til[0].m_pic.width(),m_y,l_til);
+        creatOneBull(this->m_x+this->m_pic.width()/2,this->m_y,r_til);
+        break;
+    default:break;
+    }
+
+
+
+}
+
+void HeroPlane::bulletFly()
+{
+
+    //子弹移动
+    for(int i = 0;i<20;i++)
+    {
+        if(this->l_str[i].m_alive)
+        {
+            l_str[i].updatePosition();
+        }
+    }
+    for(int i = 0;i<20;i++)
+    {
+        if(this->r_str[i].m_alive)
+        {
+            r_str[i].updatePosition();
+        }
+    }
+    for(int i = 0;i<20;i++)
+    {
+        if(this->r_til[i].m_alive)
+        {
+            r_til[i].updatePosition();
+        }
+    }
+    for(int i = 0;i<20;i++)
+    {
+        if(this->l_til[i].m_alive)
+        {
+            l_til[i].updatePosition();
+        }
+    }
+}
+
+void HeroPlane::setPosition(int x, int y)
+{
+        if(x>=0&&x<=GAME_WIDTH-this->m_pic.width())
+        {
+            this-> m_x=x;
+        }
+        if(y>=0&&y<=GAME_HEIGHT-this->m_pic.height())
+        {
+            this-> m_y=y;
+        }
+        m_rect.moveTo(m_x+BOX_OFFSET, m_y+BOX_OFFSET);
+}
+
+void HeroPlane::switchToInvincible()
+{
+    this->m_pic.load(":/images/shield.png");
+    this->invincible =true;
+    QTimer::singleShot(5000,this,[=](){
+        this->invincible=false;
+        this->m_pic.load(HeroPath);
+    });
+}
+
+void HeroPlane::setBulletAngle(double angle, Bullet bull[])
+{
+    for(int i =0;i<20;i++)
+    {
+     bull[i].setAngle(angle);
+    }
+}
+
+void HeroPlane::creatOneBull(int x, int y,Bullet bull[])
+{
+    for(int i = 0;i<20;i++)
+    {
+        if(!bull[i].m_alive)
+        {
+            bull[i].m_alive=true;
+            bull[i].m_x=x;
+            bull[i].m_y=y;
+            bull[i].m_rect.moveTo(bull[i].m_x,bull[i].m_y);
+            break;
+        }
+
+    }
+}

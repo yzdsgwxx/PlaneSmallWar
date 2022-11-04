@@ -1,0 +1,15 @@
+#ifndef PLANE_H
+#define PLANE_H
+#include<flyer.h>
+class Plane : public Flyer
+{
+    Q_OBJECT
+public:
+    explicit Plane(QWidget *parent = nullptr);
+    //ÉúÃüÖµ
+    int m_hp;
+signals:
+
+};
+
+#endif // FLYER_H

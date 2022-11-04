@@ -1,0 +1,32 @@
+#include "pausescene.h"
+#include "ui_pausescene.h"
+#include<config.h>
+#include<QPainter>
+#include<QTimer>
+#include<QDebug>
+#include<startmenu.h>
+#include<mainscene.h>
+pauseScene::pauseScene(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::pauseScene)
+{
+
+    ui->setupUi(this);
+    QTimer timer;
+    timer.start(10);
+    connect(&timer,&QTimer::timeout,[=](){update();});
+    connect(ui->btn_backToStart,&QPushButton::clicked,[=](){
+     qDebug()<<"暂停界面发送返回信号";
+     emit this->pbackToStart();
+    });
+    connect(ui->btn_restart,&QPushButton::clicked,[=](){
+     qDebug()<<"暂停界面发送重开信号";
+     emit this->restart();
+    });
+    //test
+    setStyleSheet(QString("{width:130px;height:32px;border:0px;}"));
+}
+pauseScene::~pauseScene()
+{
+    delete ui;
+}

@@ -1,0 +1,107 @@
+#include "enemy.h"
+#include<config.h>
+#include<qdebug.h>
+enemy::enemy()
+{
+    this->m_alive=false;
+    this->Type=rand()%3+1;
+    //速度 ,图片。
+    switch (Type) {
+    case ENEMY_BIG_STAND:this->m_pic.load(ENEMY3_PATH); this->speed = HIGHSPEED; this->m_hp = HP_BIG_STAND; break;
+    case ENEMY_BIG_FLY:this->m_pic.load(ENEMY1_PATH); this->speed = LOWSPEED; this->m_hp = HP_BIG_FLY; break;
+    case ENEMY_SMALL:this->m_pic.load(ENEMY6_PATH); this->speed = HIGHSPEED; this->m_hp = HP_SMALL; break;
+    } 
+    //位置
+    this->m_x= this->m_y=0;
+    //碰撞体
+    this->m_rect.setWidth(this->m_pic.width());
+    this->m_rect.setHeight(this->m_pic.height());
+    this->m_rect.moveTo(this->m_x,this->m_y);
+    //射击信号
+    this->bullet_timer.setInterval(EBULLET_INTERVAL);
+    this->bullet_timer.start();
+
+   
+
+}
+
+void enemy::reborn()
+{
+    this->m_alive = true;
+    this->Type = rand() % 3 + 1;
+    //速度 ,图片。
+    switch (Type) {
+    case ENEMY_BIG_STAND:this->m_pic.load(ENEMY3_PATH); this->speed = HIGHSPEED; this->m_hp = HP_BIG_STAND; break;
+    case ENEMY_BIG_FLY:this->m_pic.load(ENEMY1_PATH); this->speed = LOWSPEED; this->m_hp = HP_BIG_FLY; break;
+    case ENEMY_SMALL:this->m_pic.load(ENEMY6_PATH); this->speed = HIGHSPEED; this->m_hp = HP_SMALL; break;
+    }
+    //位置
+    this->m_x = rand() % (GAME_WIDTH - this->m_pic.width());
+    this->m_y = -this->m_pic.height();
+    //碰撞体
+    this->m_rect.setWidth(this->m_pic.width());
+    this->m_rect.setHeight(this->m_pic.height());
+    this->m_rect.moveTo(this->m_x,this->m_y);
+}
+
+void enemy::updatePosition()
+{
+//更新图片位置：
+        if(this->m_alive)
+        {
+            switch(Type)
+            {
+            case ENEMY_BIG_STAND:
+                if(this->m_y<=m_pic.height())
+                {
+                    this->m_y+=speed;
+                }
+                break;
+            case ENEMY_SMALL:  this->m_y+=speed;
+                break;
+            case ENEMY_BIG_FLY:
+                this->m_y+=speed;
+                break;
+            }
+            //更新矩形框位置
+            this->m_rect.moveTo(this->m_x,this->m_y);
+        }
+        if(this->m_y>GAME_HEIGHT)
+        {
+            this->m_alive=false;
+        }
+}
+
+void enemy::creatBullet()
+{
+    //发射一颗子弹
+    if (this->Type == ENEMY_SMALL)return;
+    int i = rand() % 5;
+    if (i>=2&&i<=4)
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            if (this->bull[i].m_alive)
+            {
+                bull[i].m_alive = false;;
+                bull[i].m_x = this->m_x + this->m_pic.width() / 3;
+                bull[i].m_y = this->m_y + this->m_pic.height() / 1.5;
+                bull[i].m_rect.moveTo(bull[i].m_x, bull[i].m_y);
+                break;
+            }
+        }
+    }
+}
+
+void enemy::bulletFly()
+{
+
+    //子弹移动
+    for (int i = 0; i < 20; i++)
+    {
+        if (!this->bull[i].m_alive)
+        {
+            bull[i].updatePosition();
+        }
+    }
+}

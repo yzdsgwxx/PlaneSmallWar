@@ -1,0 +1,126 @@
+#ifndef WIDGET_H
+#define WIDGET_H   //此处条件编译用于防止头文件重复包含。WIDGET_H是代表此份头文件已存在的标志，当这份文件被嵌套什么的在一个头文件中包含
+                    //了两次，第一次会生成这个标志，第二次包含时这个标志已存在，不会再包含。
+#include"config.h"
+#include <QWidget>
+#include<QTimer>
+#include<map.h>
+#include<heroplane.h>
+#include<QDebug>
+#include<QMouseEvent>
+#include<movevector.h>
+#include<enemy.h>
+#include<qmovie.h>
+#include<expload.h>
+#include<QSoundEffect>
+#include<QMediaPlayer>
+#include<ui_mainscene.h>
+#include<QKeyEvent>
+#include<qmessagebox.h>
+#include<pausescene.h>
+#include<losemenu.h>
+#include<QImage>
+#include<QPainter>
+#include<boss.h>
+class Widget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    Widget(QWidget* parent = nullptr);
+   ~Widget();
+    //定时器
+    QTimer m_timer;
+    QTimer m_eneTimer;
+    //地图对象
+    map m_map;
+    //英雄对象
+    HeroPlane hero;
+    //移动向量
+    MoveVector my_vector;
+    //敌机数组
+     enemy ene[20];
+     //爆炸数组
+     expload ex[20];
+    //音效
+       QSoundEffect *expload;
+       QSoundEffect *hit;
+       QMediaPlayer *bgPlayer;
+       QSoundEffect *lose;
+       QSoundEffect *lose1;
+       //暂停
+      bool playing=1;
+      //暂停界面
+      pauseScene * ps;
+      //游戏结束
+      bool gameover=0;
+      //失败界面
+      LoseMenu * ls;
+      //透明黑色遮罩
+      QWidget *m_widget;
+      //boss时间
+      bool bossTime=false;
+
+private:
+      //能量
+      int m_energy = 0;
+      //能量满
+      bool m_Energy_enough=false;
+      Boss * boss;
+public:
+    //初始化场景
+    void initScene();
+
+    //更新所有游戏中元素的坐标
+    void updatePosition();
+    void moveEvent(QMoveEvent *event) override;
+
+    //鼠标移动事件
+   // void mouseMoveEvent(QMouseEvent *event);
+
+    //绘图事件
+    void paintEvent(QPaintEvent *event);
+//抄--方向移动
+
+    void keyPressEvent(QKeyEvent *event) ;
+    void keyReleaseEvent(QKeyEvent *event) ;
+
+    //产生敌人
+    void creatEnemy();
+
+    //碰撞检测
+    void collisionDetection();
+    //英雄子弹碰撞检测
+    void heroBullCollision(Bullet bull[],int i);
+    //数组中第i个敌人爆炸
+    void eneExpload(int i);
+    //加载音效
+    void loadSound();
+    //连接
+    void connectFirst();
+
+    //死亡动画
+    void die_movie();
+    //透明黑色遮罩
+    void parentBlackPic();
+    //显示能量
+    void showEnergy();
+    //显示清屏技能数
+    void showKillAll();
+
+
+
+signals:
+    void HeroDie();
+    void backToStart();
+    void restart();
+public slots:
+    //启动游戏
+    void playGame();
+
+    //英雄死亡
+    void on_HeroDie();
+private:
+    Ui::mainscene ui;
+};
+#endif // WIDGET_H

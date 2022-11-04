@@ -1,0 +1,45 @@
+#include "flyer.h"
+
+Flyer::Flyer(QWidget *parent) : QWidget(parent)
+{
+
+}
+
+void Flyer::setRect(const int width, const int height)
+{
+    m_rect.setWidth(width);
+    m_rect.setHeight(height);
+}
+
+QPoint Flyer::getPos()
+{
+    QPoint pos(m_x,m_y);
+    return pos;
+}
+
+void Flyer::setPox(int x, int y)
+{
+    m_x = x;
+    m_y = y;
+}
+
+QPixmap Flyer::getPic() const
+{
+    return m_pic;
+}
+
+void Flyer::setPic(QString picRoad)
+{
+    m_pic.load(picRoad);
+}
+
+
+bool Flyer::getAlive() const
+{
+    return m_alive;
+}
+
+void Flyer::setAlive(bool alive)
+{
+    m_alive = alive;
+}

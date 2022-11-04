@@ -1,0 +1,27 @@
+#ifndef PAUSESCENE_H
+#define PAUSESCENE_H
+
+#include <QWidget>
+
+namespace Ui {
+class pauseScene;
+}
+
+class pauseScene : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit pauseScene(QWidget *parent = nullptr);
+    ~pauseScene();
+signals:
+    void pbackToStart();
+    void restart();
+private slots:
+
+
+private:
+    Ui::pauseScene *ui;
+};
+
+#endif // PAUSESCENE_H

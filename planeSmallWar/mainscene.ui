@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainscene</class>
+ <widget class="QWidget" name="mainscene">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>529</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLabel {
+border:0px;
+}</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

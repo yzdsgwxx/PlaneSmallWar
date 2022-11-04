@@ -1,0 +1,69 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+/*游戏配置*/
+#define GAME_WIDTH 512
+#define GAME_HEIGHT 768
+#define GAME_TITLE "飞机大战 v1.0"
+#define GAME_RES_PATH "D:\\QTprojects\\planeSmallWar\\x64\\Release\\res.rcc"
+#define GAME_ICON_PATH ":/images/icon.png"
+#define GAME_RATE 10 //定时器刷新时间间隔。
+/*地图配置*/
+#define MAP1_PATH ":/images/bg1.jpg"
+#define MAP2_PATH ":/images/bg2.jpg"
+#define MAP3_PATH ":/images/bg3.jpg"
+//#define MAP4_PATH ":/images/bg4.jpg"
+//#define MAP5_PATH ":/images/bg5.jpg"
+#define SCROLL_SPEED 2
+/*英雄配置数据*/
+#define HeroPath ":/images/hero2.png"
+#define HEROSPEED 0.5
+#define BULLET1_PATH ":/images/bullet1.png"
+#define BULLET2_PATH ":/images/bullet2.png"
+#define BULLET_INTERVAL 150  //英雄发射子弹的间隔
+#define HP_HERO 3           //英雄生命值
+#define ENEGY_MAX 10 //最大能量值
+#define BOX_OFFSET 30//边框偏移量
+//子弹种类
+enum {NORMAL,SAOSHE};
+
+/*敌机配置数据*/
+#define ENEMY1_PATH ":/images/enemy1.png"
+#define ENEMY2_PATH ":/images/enemy2.png"
+#define ENEMY3_PATH ":/images/enemy3.png"
+#define ENEMY4_PATH ":/images/enemy4.png"
+#define ENEMY5_PATH ":/images/enemy5.png"
+#define ENEMY6_PATH ":/images/enemy6.png"
+#define EBULLET_PATH1 ":/images/ebullet1.png" //敌机子弹路径
+#define EBULLET_PATH2 ":/images/ebullet2.png" //敌机子弹路径
+#define LOWSPEED 2.5
+#define HIGHSPEED 10
+#define HP_BIG_FLY	16				//HP
+#define HP_BIG_STAND 12
+#define HP_SMALL  4
+#define ENEMY_BIG_FLY 1					
+#define ENEMY_BIG_STAND 2
+#define ENEMY_SMALL 3
+#define ENEMY_INTERVAL 1000 //敌机产生间隔
+#define EBULLET_INTERVAL 1000  //敌机发射子弹的间隔
+//Boss信息
+#define BOSS_Height 250
+#define BOSS_WIDth 250
+#define BOSS_MOVIE ":/images/boss.gif"
+//爆炸
+#define BOMB_PATH ":/images/expload%1.png"
+#define BOMB_NUM 20
+#define BOMB_MAX 7
+#define BOMB_INTERVAL 10
+//音效
+#define SOUND_EXPLODE ":/images/bomb.wav"
+#define SOUND_BACKGROUND ":/images/metrohead.wav"
+#define SOUND_BULLET_HIT ":/images/Bullet_hit.wav"
+#define SOUND_BULLET_SHOOT ":/images/Bullet_shoot.wav"
+//开始菜单
+#define START1 ":/images/start1.png"
+#define START2 ":/images/start2.png"
+#define START3 ":/images/start3.png"
+#define SOUND_START ":/images/start.wav"  //
+#endif // CONFIG_H
+//子弹
+#define BULLET_SPEED 8

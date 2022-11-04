@@ -1,0 +1,25 @@
+#include "Bullet.h"
+Bullet::Bullet()
+{
+
+}
+
+void Bullet::updatePosition()
+{
+    //ÒÆ¶¯
+    m_y+=m_speed;
+    m_x-=m_speed*qTan(angle*M_PI/180);
+    //ÒÆ¶¯¿òÌå
+    m_rect.moveTo(m_x,m_y);
+
+    //ÅÐ¶ÏËÀÍö
+    if(m_y<=-m_pic.height()||m_y<=0||m_x<=-m_pic.width()||m_x>=GAME_WIDTH)
+    {
+        this->m_alive = false;
+    }
+}
+
+void Bullet::setAngle(double value)
+{
+    angle = value;
+}

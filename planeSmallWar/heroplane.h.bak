@@ -1,0 +1,64 @@
+#ifndef HEROPLANE_H
+#define HEROPLANE_H
+#include<QWidget>
+#include<QPixmap>
+#include<QRect>
+#include<config.h>
+#include<Bullet.h>
+#include<QTimer>
+#include<Bullet_Small_Blue.h>
+#include<QSoundEffect>
+#include<Plane.h>
+#include<Bullet.h>
+#include<bullet_mini.h>
+class HeroPlane: public Plane
+{
+public:
+    HeroPlane();
+
+    //发射子弹
+    void creatBullet();
+    void bulletFly();
+
+    //设置飞机位置
+    void setPosition(int x,int y);
+    //切换为护盾状态
+    void switchToInvincible();
+    //设置子弹发射角度
+    void setBulletAngle(double angle, Bullet bull[]);
+    //封装创建一颗子弹函数
+    void creatOneBull(int x, int y, Bullet bull[]);
+
+
+public:
+    //弹匣
+    Bullet_mini l_str[20];
+    Bullet_mini r_str[20];
+    Bullet_Small_Blue r_til[20];
+    Bullet_Small_Blue l_til[20];
+
+    Bullet_Small_Blue top[20];
+    Bullet_Small_Blue left[20];
+    Bullet_Small_Blue down[20];
+    Bullet_Small_Blue right[20];
+    QTimer bullet_timer;
+
+
+    //无敌状态
+    bool invincible=0;
+    //清屏技能
+    int killAll =3;
+    //子弹音效
+    QSoundEffect *shoot;
+    //分数
+    int m_score;
+    //音效
+    QSoundEffect  diesound;
+    QSoundEffect  hurtsound;
+    //子弹倾斜程度
+    double angle;
+    //子弹种类
+    int bullKind=NORMAL;
+};
+
+#endif // HEROPLANE_H

@@ -1,0 +1,32 @@
+#include "losemenu.h"
+#include "ui_losemenu.h"
+#include<QPainter>
+LoseMenu::LoseMenu(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::LoseMenu)
+{
+    ui->setupUi(this);
+    connect(this->ui->btn_reStart,&QPushButton::clicked,this,[=](){
+        emit restart();
+    });
+    connect(this->ui->btn_backToStart,&QPushButton::clicked,this,[=](){
+        emit backToStart();
+    });
+    backGround.load(":/images/gameover.png");
+}
+
+LoseMenu::~LoseMenu()
+{
+    delete ui;
+}
+
+void LoseMenu::showScore(int score)
+{
+    this->ui->lable_score->setText(QString::number(score));
+}
+
+void LoseMenu::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.drawPixmap(0,0,backGround);
+}

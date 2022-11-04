@@ -1,0 +1,16 @@
+#include "Bullet_Small_Blue.h"
+#include<QDebug>
+Bullet_Small_Blue::Bullet_Small_Blue()
+{
+    this->m_speed = -BULLET_SPEED;
+    damage = 1;
+    //缩放子弹
+    this->m_pic.load(":/images/bullet1.png");
+    this->m_rect.setWidth(m_pic.width());
+    this->m_rect.setHeight(m_pic.height());
+    //初始化的时候也初始话图片坐标和框体坐标，防止乱跑
+    this->m_rect.moveTo(-100, -100);
+    this->m_x = -100;
+    this->m_y = -100;
+}
+

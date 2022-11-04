@@ -1,0 +1,24 @@
+#ifndef BULLET_H
+#define BULLET_H
+#include<QPixmap>
+#include<config.h>
+#include<QRect>
+#include<flyer.h>
+#include<QtMath>
+#include<cmath>
+class Bullet :public Flyer
+{
+
+public:
+    Bullet();
+    void updatePosition();
+public:
+    //矢量，向下为正
+    int m_speed;
+    //子弹偏移角度，顺时针为正
+    double angle;
+    double damage;
+    void setAngle(double value);
+};
+
+#endif // BULLET_H

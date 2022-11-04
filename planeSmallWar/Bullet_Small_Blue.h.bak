@@ -1,0 +1,10 @@
+#pragma once
+#include "Bullet.h"
+#include<QTimer>
+class Bullet_Small_Blue :
+    public Bullet
+{
+public:
+    Bullet_Small_Blue();
+};
+

@@ -1,0 +1,37 @@
+#ifndef FLYER_H
+#define FLYER_H
+
+#include <QWidget>
+#include<QPoint>
+#include<config.h>
+class Flyer : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit Flyer(QWidget *parent = nullptr);
+    //´æ»î×´Ì¬
+    bool m_alive;
+    //Í¼Æ¬
+    QPixmap m_pic;
+    //±ß¿ò
+    QRect m_rect;
+    //×ø±ê
+    double m_x;
+    double m_y;
+    bool getAlive() const;
+    void setAlive(bool getAlive);
+
+    QPixmap getPic() const;
+    void setPic(QString picRoad);
+
+    void setRect(const int width,const int height);
+
+    QPoint getPos();
+    void setPox(int x,int y);
+
+signals:
+
+};
+
+
+#endif // FLYER_H

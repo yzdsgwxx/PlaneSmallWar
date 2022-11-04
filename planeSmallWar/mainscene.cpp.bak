@@ -1,0 +1,724 @@
+#include "mainscene.h"
+#include<QIcon>
+#include<qtextedit.h>
+#include<qlabel.h>
+#include<QMovie>
+#include<QPropertyAnimation>
+#include<QSoundEffect>
+Widget::Widget(QWidget *parent)
+    : QWidget(parent)
+{
+    ui.setupUi(this);
+
+//    QMovie * movie = new QMovie;
+//    movie->setFileName(":/images/test.gif");
+//    movie->start();
+    initScene();
+    loadSound();
+    //连接
+    connectFirst();
+}
+Widget::~Widget()
+{
+}
+void Widget::initScene()
+{
+//    QTimer::singleShot(10000,this,[=]
+//    {
+//        //实例化boss
+//        boss = new Boss(this);
+//        bossTime=true;
+//    });
+
+    //    设置固定尺寸
+    this->setFixedSize(GAME_WIDTH,GAME_HEIGHT);
+    this->setWindowTitle(GAME_TITLE);
+    //设置窗口图标
+    this->setWindowIcon(QIcon(GAME_ICON_PATH));
+    //定时器设置间隔
+    m_timer.setInterval(GAME_RATE);
+    m_eneTimer.setInterval(ENEMY_INTERVAL);
+    parentBlackPic();
+    ps=new pauseScene(this);
+    ps->setGeometry((this->width()-ps->width())/2,(this->height()-ps->height())/2,ps->width(),ps->height());
+    ps->hide();
+    ls = new LoseMenu(this);
+    ls->setGeometry((this->width()-ls->width())/2,(this->height()-ls->height())/2,ls->width(),ls->height());
+    ls->hide();
+    qApp->setStyleSheet(QString("QPushButton {width:130px;height:30px;border:0px;background-repeat:no-repeat;}"));
+
+
+}
+
+void Widget::playGame()
+{
+    //播放背景音乐
+    bgPlayer->play();
+    //启动定时器
+    m_timer.start();
+    m_eneTimer.start();
+}
+
+
+void Widget::on_HeroDie()
+{
+    //音乐停止
+   this->bgPlayer->stop();
+    //弹出结算界面
+
+}
+
+void Widget::updatePosition()
+{
+    //地图滚动
+    m_map.mapPosition();
+    //玩家飞机移动
+    this->my_vector.GenerateVector();
+    int isShiftPressed=this->my_vector.StateofMoveKeys[4]==QString("pressed")?1:0;
+    int deltax=qFloor(this->my_vector.Vx*100000.0)/(10000+isShiftPressed*30000);
+    int deltay=qFloor(this->my_vector.Vy*100000.0)/(10000+isShiftPressed*30000);
+    this->hero.setPosition(this->hero.m_x+deltax*HEROSPEED,this->hero.m_y+deltay*HEROSPEED);
+    //敌机移动
+    for(int i = 0;i<20;i++)
+    {
+        if(ene[i].m_alive)
+        {
+            ene[i].updatePosition();
+        }
+    }
+    for (int i = 0; i < 20; i++)
+    {
+        if (!ex[i].m_free)
+        {
+            ex[i].updateInfo();
+        }
+    }
+}
+
+void Widget::moveEvent(QMoveEvent *event)
+{
+    //this->parentWidget()->setGeometry(this->geometry());
+}
+
+//void Widget::mouseMoveEvent(QMouseEvent *event)
+//{
+//    int x=event->x();
+//    int y=event->y();
+//    hero.setPosition(x,y);
+//}
+
+void Widget::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    //画地图
+    painter.drawPixmap(0,m_map.m_map_1_posY,m_map.m_map1);
+    painter.drawPixmap(0,m_map.m_map_2_posY,m_map.m_map2);
+    //画玩家
+    if(this->hero.m_alive)
+    {
+        painter.drawPixmap(this->hero.m_x,this->hero.m_y,this->hero.m_pic);
+    }
+
+    //画玩家边框
+    painter.drawRect(hero.m_rect);
+    //画英雄子弹
+    if(this->hero.m_alive)
+    {
+        for(int i = 0;i<20;i++)
+        {
+            if(hero.l_str[i].m_alive)
+            {
+                painter.drawPixmap(hero.l_str[i].m_x,hero.l_str[i].m_y,hero.l_str[i].m_pic);
+                //画子弹边框
+                painter.drawRect(hero.l_str[i].m_rect);
+            }
+            if(hero.r_str[i].m_alive)
+            {
+                painter.drawPixmap(hero.r_str[i].m_x,hero.r_str[i].m_y,hero.r_str[i].m_pic);
+                //画子弹边框
+                painter.drawRect(hero.r_str[i].m_rect);
+            }
+            if(hero.l_til[i].m_alive)
+            {
+                painter.drawPixmap(hero.l_til[i].m_x,hero.l_til[i].m_y,hero.l_til[i].m_pic);
+                //画子弹边框
+                painter.drawRect(hero.l_til[i].m_rect);
+            }
+            if(hero.r_til[i].m_alive)
+            {
+                painter.drawPixmap(hero.r_til[i].m_x,hero.r_til[i].m_y,hero.r_til[i].m_pic);
+                //画子弹边框
+                painter.drawRect(hero.r_til[i].m_rect);
+            }
+        }
+    }
+
+    //画敌机
+    for(int i = 0;i<20;i++)
+    {
+        if(ene[i].m_alive)
+        {
+            painter.drawPixmap(ene[i].m_x,ene[i].m_y,ene[i].m_pic);
+            // qDebug()<<"为什么不画"<<i;
+        }
+
+    }
+    //画爆炸
+    for (int i = 0; i < 20; i++)
+    {
+        if (!ex[i].m_free)
+        {
+            painter.drawPixmap(ex[i].m_x, ex[i].m_y, ex[i].m_pixArr[ex[i].m_index]);
+        }
+    }
+    //画敌机子弹
+    for (int j = 0; j < 20; j++)
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            if (!ene[j].bull[i].m_alive)
+            {
+                painter.drawPixmap(ene[j].bull[i].m_x, ene[j].bull[i].m_y, ene[j].bull[i].m_pic);
+                //画敌机子弹边框
+                painter.drawRect(ene[j].bull[i].m_rect);
+            }
+        }
+    }
+    //画boss
+    if(bossTime)
+    {
+       painter.drawPixmap(boss->getPos(),boss->m_pic);
+}
+    //画血条敌人
+    QBrush white_brush(QColor("white"));
+    painter.setBrush(white_brush);
+    for(int i = 0;i<20;i++)
+    {
+     if(ene[i].m_alive)
+     {
+         float total_hp;
+         if(ene[i].Type==ENEMY_BIG_FLY)
+         {
+             total_hp=HP_BIG_FLY;
+         }
+         else if(ene[i].Type==ENEMY_SMALL)
+
+         {
+             total_hp=HP_SMALL;
+         }
+         else
+         {
+             total_hp = HP_BIG_STAND;
+         }
+         float rate = 1.0*ene[i].m_hp/total_hp;
+         painter.drawRect(ene[i].m_x,ene[i].m_y,ene[i].m_pic.width()*rate,20);
+     }
+
+    }
+    //画自己血条
+    QBrush green_brush(QColor("green"));
+    QBrush red_brush(QColor("red"));
+    float rate = 1.0*hero.m_hp/HP_HERO;
+    if(rate>=0.5)
+    {
+        painter.setBrush(green_brush);
+    }
+    else
+    {
+        painter.setBrush(red_brush);
+    }
+    painter.drawRect(hero.m_x,hero.m_y,hero.m_pic.width()*rate,20);
+
+
+
+
+
+
+}
+
+//按键事件
+void Widget::keyPressEvent(QKeyEvent *event)
+{
+    if(this->playing||!gameover)
+    {
+        //启动无敌
+        if(this->m_Energy_enough&&event->key()==Qt::Key_U)
+        {
+            this->hero.switchToInvincible();
+            this->m_energy=0;
+            this->m_Energy_enough=false;
+            this->ui.widget_4->setStyleSheet(QString("QLabel{color:pink}"));
+        }
+        if(event->key()==Qt::Key_Left)
+        {
+            this->my_vector.StateofMoveKeys[0]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_Up)
+        {
+            this->my_vector.StateofMoveKeys[1]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_Down)
+        {
+            this->my_vector.StateofMoveKeys[2]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_Right)
+        {
+            this->my_vector.StateofMoveKeys[3]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_Shift)//低速移动键，参照東方project机制
+        {
+            this->my_vector.StateofMoveKeys[4]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_A)
+        {
+            this->my_vector.StateofMoveKeys[5]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_W)
+        {
+            this->my_vector.StateofMoveKeys[6]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_S)
+        {
+            this->my_vector.StateofMoveKeys[7]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_D)
+        {
+            this->my_vector.StateofMoveKeys[8]=QString("pressed");
+        }
+        if(event->key()==Qt::Key_Escape)
+        {
+            //暂停
+            if(playing)
+            {
+                playing=0;
+                //弹出暂停界面
+                ps->show();
+                //屏幕变暗
+                this->m_widget->show();
+                //bgm暂停
+                bgPlayer->pause();
+
+            }
+            //恢复游戏
+            else
+            {
+                playing=1;
+                ps->hide();
+                this->m_widget->hide();
+                bgPlayer->play();
+            }
+        }
+        //清屏
+        if(event->key()==Qt::Key_I)
+        {
+            if(hero.killAll>0)
+            {
+                //敌人爆炸
+                for(int i = 0;i<20;i++)
+                {
+                    if(ene[i].m_alive)
+                    {
+                      eneExpload(i);
+                      for(int j = 0;j<20;j++)
+                      {
+                          ene[i].bull[j].m_alive=true;
+                      }
+                    }
+                }
+                hero.killAll--;
+            }
+        }
+        if(event->key()==Qt::Key_T)
+        {
+            if(hero.bullKind==NORMAL)
+            hero.bullKind=SAOSHE;
+            else
+            {
+                hero.bullKind=NORMAL;
+            }
+        }
+        if(hero.bullKind==SAOSHE)
+        {
+            if(event->key()==Qt::Key_P)
+            {
+                hero.angle-=10;
+                if(hero.angle<-10)hero.angle=0;
+                hero.setBulletAngle(hero.angle,hero.l_til);
+                hero.setBulletAngle(-hero.angle,hero.r_til);
+                qDebug()<<"angle变化"<<hero.angle;
+            }
+        }
+
+    }
+
+}
+
+//松键事件
+void Widget::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key()==Qt::Key_Left)
+    {
+        this->my_vector.StateofMoveKeys[0]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_Right)
+    {
+        this->my_vector.StateofMoveKeys[3]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_Up)
+    {
+        this->my_vector.StateofMoveKeys[1]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_Down)
+    {
+        this->my_vector.StateofMoveKeys[2]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_Shift)//低速移动键，参照東方project机制
+    {
+        this->my_vector.StateofMoveKeys[4]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_A)
+    {
+        this->my_vector.StateofMoveKeys[5]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_W)
+    {
+        this->my_vector.StateofMoveKeys[6]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_S)
+    {
+        this->my_vector.StateofMoveKeys[7]=QString("unpressed");
+    }
+    if(event->key()==Qt::Key_D)
+    {
+        this->my_vector.StateofMoveKeys[8]=QString("unpressed");
+    }
+}
+
+void Widget::creatEnemy()
+{
+    int i = rand()%20;
+        if(!ene[i].m_alive)
+        {
+            ene[i].reborn();
+        }
+
+}
+void Widget::collisionDetection()
+{
+    //英雄子弹撞击敌机
+    for(int i = 0;i<20;i++)
+    {
+        if(!ene[i].m_alive)continue;
+        else
+        {
+            //一号子弹检测
+            heroBullCollision(hero.r_str,i);
+            //二号子弹检测
+            heroBullCollision(hero.l_str,i);
+            //斜右子弹
+            heroBullCollision(hero.r_til,i);
+            //斜左子弹检测
+            heroBullCollision(hero.l_til,i);
+
+        }
+    }
+    if(!this->hero.invincible)
+    {
+        //英雄撞击敌机
+        for (int i = 0; i < 20; i++)
+        {
+            if (!ene[i].m_alive)continue;
+            else
+            {
+                if (ene[i].m_rect.intersects(hero.m_rect))
+                {
+                    ene[i].m_alive = false;
+                    if (--hero.m_hp <= 0)
+                    {
+                        hero.m_alive = false;//英雄死亡。
+                        gameover=1;
+                        expload->play();
+                        die_movie();
+                        //画面暂停
+                        this->playing=0;
+                        this->hero.diesound.play();
+                        this->m_widget->show();
+                        QTimer::singleShot(2000,this,[=](){ emit HeroDie();
+                        //设置分数
+                        ls->showScore(hero.m_score);
+                        //失败音效
+                        lose->play();
+                        lose1->play();
+                        ls->show();
+                        });
+                    }
+                    else
+                    {
+                        //受伤音效
+                        this->hero.hurtsound.play();
+                        this->playing=0;
+                        QTimer::singleShot(100,this,[=](){
+                         playing = 1;
+                        });
+                    }
+
+                }
+            }
+        }
+        //敌机子弹撞击英雄
+        for (int i = 0; i < 20; i++)
+        {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (ene[i].bull[j].m_alive)continue;
+                    else
+                    {
+                        //撞到了
+                        if (ene[i].bull[j].m_rect.intersects(hero.m_rect))
+                        {
+                            hero.m_hp--;
+                            ene[i].bull[j].m_alive = true;
+                            //qDebug() << hero.HP;
+                            if (hero.m_hp <= 0)
+                            {
+                                hero.m_alive = false;//英雄死亡。
+                                gameover=1;
+                                die_movie();
+                                expload->play();
+                                this->playing=0;
+                                this->hero.diesound.play();
+                                this->m_widget->show();
+                                QTimer::singleShot(2000,this,[=](){ emit HeroDie();
+                                    ls->showScore(hero.m_score);
+                                    ls->show();
+                                    lose->play();
+                                    lose1->play();
+
+                                }
+                                );
+                            }
+                            else
+                            {
+                                //受伤音效
+                                this->hero.hurtsound.play();
+                                //受击反馈
+                                this->playing=0;
+                                this->m_widget->show();
+                                QTimer::singleShot(100,this,[=](){
+                                 playing = 1;
+                                 m_widget->hide();
+                                });
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+}
+
+void Widget::heroBullCollision(Bullet bull[],int i)
+{
+    for(int j = 0;j<20;j++)
+    {
+        if(!bull[j].m_alive)continue;
+        else
+        {
+
+
+           if(ene[i].m_rect.intersects(bull[j].m_rect))
+           {
+               //子弹打到的音效
+               hit->play();
+               //子弹销毁
+               bull[j].m_alive=false;
+               //敌机爆炸
+               if (--ene[i].m_hp <= 0)
+               {
+                   eneExpload(i);
+               }
+               //能量增加
+               if(!this->m_Energy_enough&&!this->hero.invincible)
+               {
+                   this->m_energy++;
+                   if(m_energy>=ENEGY_MAX)
+                   {
+                       m_energy=ENEGY_MAX;
+                       this->m_Energy_enough=true;
+                       ui.widget_4->setStyleSheet(QString("QLabel{color:red;}"));
+                   }
+               }
+
+           }
+        }
+    }
+}
+
+void Widget::eneExpload(int i)
+{
+    //加分数
+    hero.m_score++;
+    ene[i].m_alive = false;
+    for (int k = 0; k < 20; k++)
+    {   //爆炸动画
+        if (ex[k].m_free)
+        {
+            expload->play();
+            ex[k].m_free = false;
+            ex[k].m_x = ene[i].m_x+ene[i].m_pic.width() / 2;
+            ex[k].m_y = ene[i].m_y+ene[i].m_pic.height() / 2;
+            break;
+        }
+    }
+}
+
+void Widget::loadSound()
+{
+    //爆炸
+    expload=new QSoundEffect(this);   
+    expload->setSource(QUrl::fromLocalFile(SOUND_EXPLODE)); 
+    expload->setVolume(1.0f);
+    //打击
+    hit = new QSoundEffect(this);
+    hit->setSource(QUrl::fromLocalFile(SOUND_BULLET_HIT));
+    hit->setVolume(0.7);
+    //背景音乐
+    bgPlayer=new QMediaPlayer(this);
+//(QUrl("qrc:/images/cyberthug.wav"));
+    //失败
+    lose=new QSoundEffect(this);
+    lose->setSource(QUrl::fromLocalFile(":/images/lose.wav"));
+    lose->setVolume(1.0f);
+    lose1=new QSoundEffect(this);
+    lose1->setSource(QUrl::fromLocalFile(":/images/lose1.wav"));
+    lose1->setVolume(1.0f);
+}
+
+void Widget::connectFirst()
+{
+    //返回开始菜单
+    connect(this->ps,&pauseScene::pbackToStart,this,[=](){
+        emit this->backToStart();
+        qDebug()<<"游戏界面发送返回信号";
+
+    });
+    connect(this->ls,&LoseMenu::backToStart,this,[=](){
+        emit this->backToStart();
+        qDebug()<<"游戏界面发送返回信号";
+
+    });
+    //重开
+    connect(this->ls,&LoseMenu::restart,this,[=](){
+        emit this->restart();
+        qDebug()<<"游戏界面发送重开信号";
+    });
+    connect(this->ps,&pauseScene::restart,this,[=](){
+        emit this->restart();
+        qDebug()<<"游戏界面发送重开信号";
+
+    });
+    //连接信号槽
+    connect(this,SIGNAL(HeroDie()),this,SLOT(on_HeroDie()));
+    //帧信号
+    connect(&this->m_timer,&QTimer::timeout,this,[=]()
+    {
+        if(playing)
+        {
+            //碰撞检测
+            collisionDetection();
+            //子弹飞行
+            hero.bulletFly();
+            for (int i = 0; i < 20; i++)
+            {
+                ene[i].bulletFly();
+            }
+            //地图敌机玩家移动
+            updatePosition();
+        }
+        //显示分数
+        ui.lab_score->setText(QString::number(hero.m_score));
+        ui.lab_hp->setText(QString::number(hero.m_hp));
+        //显示能量
+        showEnergy();
+        //显示技能书
+        showKillAll();
+
+        update();
+    });
+    //敌人产生信号
+    connect(&this->m_eneTimer, &QTimer::timeout, this, [=]()
+    {
+        if(playing&&!bossTime)
+        {
+        creatEnemy();
+        }
+        update();
+    });
+    //英雄射击信号
+    connect(&this->hero.bullet_timer,&QTimer::timeout,this,[=]()
+    {
+        if(playing)
+        {
+        hero.creatBullet();
+        }
+        update();
+    });
+    //敌机射击信号
+    for (int i = 0; i < 20; i++)
+    {
+        connect(&this->ene[i].bullet_timer, &QTimer::timeout, this, [=]()
+        {
+            if(playing)
+            {
+            if (ene[i].m_alive)
+            {
+                ene[i].creatBullet();
+                update();
+            }
+            }
+        });
+
+    }
+    //切换成护盾状态
+}
+
+void Widget::die_movie()
+{
+    QLabel *lab=new QLabel(this);
+    QMovie * die = new QMovie(this);
+    die->setFileName(":/images/HeroDie.gif");
+    lab->setGeometry(hero.m_x,hero.m_y,hero.m_pic.width(),hero.m_pic.height());
+    lab->setMovie(die);
+    die->start();
+    lab->show();
+    die->setSpeed(75);
+    QObject::connect(die, &QMovie::frameChanged, [=](int frameNumber) {
+    // GIF 动画执行一次就结束
+    if (frameNumber == die->frameCount()-1) {
+    die->stop();
+    }
+    });
+
+}
+
+void Widget::parentBlackPic()
+{
+            this->m_widget = new QWidget(this);
+            m_widget->resize (this->width(), this->height());
+            m_widget->move (0,0);
+            QPalette pal(m_widget->palette());
+            m_widget->setStyleSheet("background-color:rgba(0, 0, 0, 20%);");
+            m_widget->setAutoFillBackground(true);
+            m_widget->setPalette(pal);
+            m_widget->hide();
+}
+
+void Widget::showEnergy()
+{
+    this->ui.label_energy->setText(QString::number(this->m_energy));
+}
+
+void Widget::showKillAll()
+{
+    this->ui.lab_killall->setText(QString::number(hero.killAll));
+}

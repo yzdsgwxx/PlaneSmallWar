@@ -1,0 +1,28 @@
+#ifndef ENEMY_H
+#define ENEMY_H
+#include<QRect>
+#include<QPixmap>
+#include<Ebullet.h>
+#include<qtimer.h>
+#include<Plane.h>
+class enemy:public Plane
+{
+public:
+    enemy();
+    void reborn();
+    void updatePosition();
+    //发射子弹
+    void creatBullet();
+    void bulletFly();
+public:
+    //飞机速度
+    int speed;
+    //敌方弹匣
+    Ebullet bull[20];
+    //敌机射击信号
+    QTimer bullet_timer;
+    int Type;
+
+};
+
+#endif // ENEMY_H
