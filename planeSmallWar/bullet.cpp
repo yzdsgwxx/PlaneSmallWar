@@ -21,10 +21,12 @@ void Bullet::ProcessPicture()
 {
     if(!picture())
         reportError("未加载子弹图片");
+    if(!angle())
+        reportError("未初始化子弹角度");
     QTransform transform;
-    transform.rotate(360-angle());
     transform.scale(1,1);
-    setPicture(picture().transformed(transform));
+    transform.rotate(360-angle());
+    setPicture(unScaledPicture().transformed(transform));
 
 }
 

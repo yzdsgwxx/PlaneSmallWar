@@ -4,6 +4,7 @@ BulletBlue::BulletBlue(QWidget *parent)
 {
     setAngle(Blue_Angle);
     setPicture(BULLET1_PATH);
+    setUnScaledPicture(BULLET1_PATH);
     ProcessPicture();
     setRectSize();
     moveRect();
@@ -11,8 +12,4 @@ BulletBlue::BulletBlue(QWidget *parent)
     setSpeed(Blue_Speed);
 }
 
-void BulletBlue::born()
-{
-    setAlive(true);
-}
 

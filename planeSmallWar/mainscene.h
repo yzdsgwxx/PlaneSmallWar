@@ -36,8 +36,11 @@ public:
 public:
     void initScene();
     void connectFirst();
-
     void startAllTimer();
+    void stopAllTimer();
+    void gameOver();
+    void killAll();
+    void killAllStaff();
     //抄--方向移动
     void keyReleaseEvent(QKeyEvent *event) ;
     void keyPressEvent(QKeyEvent *event) ;
@@ -67,7 +70,9 @@ public:
     void detectHeroGetSupply();
     void detectHeroCrashEnemy(Enemy *enemy);
     void detectBulletHitEnemies(Bullet * bullet);
+    void detectHugeBulletHitEnemies(Bullet * bullet);
     void detectEnemyHitHero(Enemy *sIt);
+
     //    void moveEvent(QMoveEvent *event) override;
 
     //    //鼠标移动事件
@@ -138,7 +143,6 @@ private:
     // QWidget *m_widget;
 
 signals:
-    //void HeroDie();
     void backToStart();
     void restart();
 public slots:

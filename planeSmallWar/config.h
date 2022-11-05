@@ -20,7 +20,8 @@ const QString MAP3_PATH = ":/images/bg3.jpg";
 const double BoxScaledRate = 0.5;
 /*英雄配置数据*/
 const double Hero_Speed = 0.5;
-const double Hero1_ShootingRate =200;  //英雄发射子弹的间隔;
+const double Shooting_Interval =200;  //英雄发射子弹的间隔;
+const double Strafe_Interval = 100;
 const double Hero1_Hp =100;           //英雄生命值;
 const double ENEGY_MAX =10; //最大能量值;
 const QString HERO1_PATH =":/images/hero1.png";
@@ -29,8 +30,8 @@ const double Hero1_CollidingInjury=10000;
 //技能
 const double QuickShoot_Lastingmsc = 5000;
 const double Invincible_Lastingmsc = 5000;
-const double strafe_Lastingmsc = 5000;
-const double annularShoot_Lastingmsc = 5000;
+const double Strafe_Lastingmsc = 5000;
+const double AnnularShoot_Lastingmsc = 5000;
 
 /*敌机配置数据*/
 //总生命值
@@ -93,19 +94,26 @@ const QString START3= ":/images/start3.png";
 const QString LoadRoundSound_Path= ":/images/start.wav";
 /*子弹*/
 //贴图
+const QString BULLET0_PATH =":/images/bullet0.png";
 const QString BULLET1_PATH =":/images/bullet1.png";
 const QString BULLET2_PATH =":/images/bullet2.png";
 const QString BULLET3_PATH =":/images/bullet3.png";
 
+
 //伤害
 const double Blue_Damage = 2;
 const double Red_Damage = 2;
-//子弹发射角度
+const double Huge_Damage = 10000;
+//发射角度
 const double Blue_Angle = 90;
 const double Red_Angle = 90;
+const double Huge_Angle = 90;
 //速度
 const double Blue_Speed = 10;
 const double Red_Speed = 5;
+const double Huge_Speed = 5;
+//数量
+const int Huge_Amount = 4;
 /*----------------------------*/
 //补给包
 //速度

@@ -4,11 +4,6 @@ Plane::Plane(QWidget *parent) :
 {
 }
 
-void Plane::die()
-{
-    setAlive(false);
-}
-
 double Plane::previousHp() const
 {
     return m_previousHp;
@@ -43,6 +38,7 @@ void Plane::startShootingTimer()
 
 void Plane::shootBullet()
 {
+    //普通子弹
     for(auto it=m_magazineVector.begin();it!=m_magazineVector.end();it++)
     {
         for(auto sIt = (*it).begin();sIt !=(*it).end();sIt++)

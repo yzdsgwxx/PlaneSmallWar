@@ -170,17 +170,33 @@ void Widget::detectBulletHitEnemies(Bullet *bullet)
     }
 }
 
+void Widget::detectHugeBulletHitEnemies(Bullet *bullet)
+{
+    for(auto it = m_enemiesVector.begin();it!=m_enemiesVector.end();it++ )
+    {
+        for(auto sIt = (*it).begin();sIt!=(*it).end();sIt++)
+        {
+            if((*sIt)->isAlive()&&bullet->rect().intersects((*sIt)->rect()))
+            {
+                (*sIt)->setPreviousHp((*sIt)->previousHp()-bullet->damage());
+                bullet->die();
+                if((*sIt)->previousHp()<=0)
+                {
+                    (*sIt)->die();
+                }
+            }
+        }
+    }
+}
+
 void Widget::detectEnemiesHitHero()
 {
     for(auto it = m_enemiesVector.begin();it!=m_enemiesVector.end();it++ )
     {
         for(auto sIt = (*it).begin();sIt!=(*it).end();sIt++)
         {
-            if((*sIt)->isAlive())
-            {
-                detectEnemyHitHero(*sIt);
-                detectHeroCrashEnemy(*sIt);
-            }
+            detectEnemyHitHero(*sIt);
+            detectHeroCrashEnemy(*sIt);
         }
     }
 }
@@ -197,10 +213,13 @@ void Widget::detectHeroGetSupply()
 
 void Widget::detectHeroCrashEnemy(Enemy *enemy)
 {
-    if(enemy->rect().intersects(m_hero->rect()))
+    if(enemy->isAlive()&&m_hero->isAlive()&&enemy->rect().intersects(m_hero->rect()))
     {
         enemy->setPreviousHp(enemy->previousHp()-m_hero->collidingInjury());
-        m_hero->setPreviousHp(m_hero->previousHp()-enemy->collidingInjury());
+        if(!m_hero->isInvincible())
+        {
+            m_hero->setPreviousHp(m_hero->previousHp()-enemy->collidingInjury());
+        }
         if(enemy->previousHp()<=0)
         {
             enemy->die();
@@ -222,12 +241,14 @@ void Widget::detectEnemyHitHero(Enemy *sIt)
             if((*sIt)->isAlive()&&m_hero->isAlive()&&(*sIt)->rect().intersects(m_hero->rect()))
             {
                 (*sIt)->die();
-                m_hero->setPreviousHp(m_hero->previousHp()-(*sIt)->damage());
+                if(!m_hero->isInvincible())
+                {
+                    m_hero->setPreviousHp(m_hero->previousHp()-(*sIt)->damage());
+                }
                 if(m_hero->previousHp()<=0)
                 {
                     m_hero->die();
                 }
-                qDebug()<<"Widgt::detectEnemyHitHero.EnemyhitHero"<<m_hero->previousHp();
             }
         }
     }
@@ -295,6 +316,40 @@ void Widget::startAllTimer()
     m_supplyTimer.start();
 }
 
+void Widget::stopAllTimer()
+{
+    m_timer.stop();
+    m_enemyTimer.stop();
+    m_supplyTimer.stop();
+}
+
+void Widget::gameOver()
+{
+    setPlaying(false);
+    //stopAllTimer();
+    m_loseMenu->show();
+}
+
+void Widget::killAll()
+{
+    for(auto it = m_enemiesVector.begin();it!=m_enemiesVector.end();it++ )
+    {
+        for(auto sIt = (*it).begin();sIt!=(*it).end();sIt++)
+        {
+            (*sIt)->die();
+        }
+    }
+}
+
+void Widget::killAllStaff()
+{
+    if(m_hero->killAllAmount())
+    {
+        killAll();
+        m_hero->setKillAll(m_hero->killAllAmount()-1);
+    }
+}
+
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if(event->key()==Qt::Key_Left)
@@ -338,10 +393,15 @@ void Widget::keyPressEvent(QKeyEvent *event)
     {
         pauseStaff();
     }
-
+    if(event->key()==Qt::Key_K)
+    {
+        m_hero->die();
+    }
+    if(event->key()==Qt::Key_T)
+    {
+       m_hero->OnStrafe();
+    }
 }
-
-
 
 void Widget::keyReleaseEvent(QKeyEvent *event)
 {
@@ -381,10 +441,6 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
     {
         this->my_vector.StateofMoveKeys[8]=QString("unpressed");
     }
-    if(event->key()==Qt::Key_T)
-    {
-        m_hero->OnQuickShoot();
-    }
 }
 
 void Widget::pauseStaff()
@@ -393,6 +449,7 @@ void Widget::pauseStaff()
     if(playing())
     {
         setPlaying(false);
+        stopAllTimer();
         m_pauseMenu->show();
         //this->m_widget->show();
         //bgm暂停
@@ -402,6 +459,7 @@ void Widget::pauseStaff()
     else
     {
         setPlaying(true);
+        startAllTimer();
         m_pauseMenu->hide();
         //this->m_widget->hide();
         //bgPlayer->play();
@@ -422,6 +480,7 @@ void Widget::collisionDetection()
 
 void Widget::detectHeroHitEnemies()
 {
+    //普通子弹
     for(auto it =m_hero->magazineVector().begin();it!=m_hero->magazineVector().end();it++ )
     {
         for(auto sIt = (*it).begin();sIt!=(*it).end();sIt++)
@@ -430,6 +489,14 @@ void Widget::detectHeroHitEnemies()
             {
                 detectBulletHitEnemies(*sIt);
             }
+        }
+    }
+    //特殊子弹
+    for(auto it = m_hero->hugeMagazine().begin();it!=m_hero->hugeMagazine().end();it++)
+    {
+        if((*it)->isAlive())
+        {
+            detectHugeBulletHitEnemies(*it);
         }
     }
 }
@@ -486,6 +553,8 @@ void Widget::connectFirst()
     //重开
     connect(this->m_loseMenu,&LoseMenu::restart,this,[=](){emit this->restart();});
     connect(this->m_pauseMenu,&pauseScene::restart,this,[=](){emit this->restart();});
+    //游戏结束
+    connect(m_hero,&HeroPlane::heroDie,this,&Widget::gameOver);
     //产生objects信号
     connect(&this->m_enemyTimer, &QTimer::timeout, this,&Widget::generateEnemy);
     connect(&this->m_supplyTimer, &QTimer::timeout, this,&Widget::generateSupply);
@@ -493,7 +562,6 @@ void Widget::connectFirst()
     //帧信号
     connect(&this->m_timer,&QTimer::timeout,this,[=]()
     {
-        if(!playing())return;
         updatePosition();
         collisionDetection();
         //显示分数
@@ -544,6 +612,7 @@ void Widget::connectFirst()
 //}
 void Widget::drawHeroBullets()
 {
+    //普通子弹
     for(auto it = m_hero->magazineVector().begin();it!=m_hero->magazineVector().end();it++ )
     {
         for(auto sIt = (*it).begin();sIt!=(*it).end();sIt++)
@@ -553,6 +622,15 @@ void Widget::drawHeroBullets()
                 m_painter->drawPixmap((*sIt)->x(),(*sIt)->y(),(*sIt)->picture().width(),(*sIt)->picture().height(),(*sIt)->picture());
                 m_painter->drawRect((*sIt)->rect());
             }
+        }
+    }
+    //特殊子弹
+    for(auto it = m_hero->hugeMagazine().begin();it!=m_hero->hugeMagazine().end();it++)
+    {
+        if((*it)->isAlive())
+        {
+            m_painter->drawPixmap((*it)->x(),(*it)->y(),(*it)->picture().width(),(*it)->picture().height(),(*it)->picture());
+            m_painter->drawRect((*it)->rect());
         }
     }
 }

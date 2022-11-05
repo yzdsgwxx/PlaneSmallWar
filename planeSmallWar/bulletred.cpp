@@ -3,16 +3,11 @@
 BulletRed::BulletRed(QWidget *parent)
     : Bullet{parent}
 {
-    setAngle(-90);
+    setAngle(Red_Angle);
     setPicture(BULLET2_PATH);
     ProcessPicture();
     setRectSize();
     moveRect();
     setDamage(Red_Damage);
     setSpeed(Red_Speed);
-}
-
-void BulletRed::born()
-{
-    setAlive(true);
 }

@@ -43,9 +43,13 @@ public:
     bool initialed() const;
     void setInitialed(bool newInitialed);
 
+    const QPixmap &unScaledPicture() const;
+    void setUnScaledPicture(const QPixmap &newUnScaledPicture);
+
 private:
     bool m_alive=false;
-    QPixmap m_picture;
+    QPixmap m_scaledPicture;
+    QPixmap m_unScaledPicture;
     QRect m_rect;
     double m_x;
     double m_y;

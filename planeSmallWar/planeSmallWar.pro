@@ -19,6 +19,7 @@ SOURCES += \
     Plane.cpp \
     bullet.cpp \
     bulletBlue.cpp \
+    bullethuge.cpp \
     bulletred.cpp \
     enemy.cpp \
     enemy1.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     Plane.h \
     bullet.h \
     bulletBlue.h \
+    bullethuge.h \
     bulletred.h \
     config.h \
     enemy.h \

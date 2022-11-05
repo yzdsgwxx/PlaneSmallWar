@@ -10,8 +10,7 @@ public:
     explicit Plane(QWidget *parent = nullptr);
     virtual void loadBullet()=0;
     virtual void prepareMagazinesVector()=0;
-    void die()override;
-    void shootBullet();
+    virtual void shootBullet();
     void startShootingTimer();
     void resetShootTimer();
 

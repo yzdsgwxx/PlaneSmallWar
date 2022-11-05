@@ -1,7 +1,7 @@
 #include "flyer.h"
 
 Flyer::Flyer(QWidget *parent) :
-    QWidget(parent),m_alive(false),m_picture(HERO1_PATH),
+    QWidget(parent),m_alive(false),m_scaledPicture(HERO1_PATH),
     m_rect(0,0,0,0),m_x(0),m_y(0),m_speed(0),m_initialed(false)
 {
 }
@@ -73,6 +73,16 @@ void Flyer::setInitialed(bool newInitialed)
     m_initialed = newInitialed;
 }
 
+const QPixmap &Flyer::unScaledPicture() const
+{
+    return m_unScaledPicture;
+}
+
+void Flyer::setUnScaledPicture(const QPixmap &newUnScaledPicture)
+{
+    m_unScaledPicture = newUnScaledPicture;
+}
+
 unsigned int Flyer::speed() const
 {
     return m_speed;
@@ -101,12 +111,12 @@ double Flyer::y() const
 
 void Flyer::setPicture(const QString & picPath)
 {
-    m_picture.load(picPath);
+    m_scaledPicture.load(picPath);
 }
 
 void Flyer::setPicture(const QPixmap &other)
 {
-    m_picture = other;
+    m_scaledPicture = other;
 }
 
 bool Flyer::isAlive() const
@@ -116,7 +126,7 @@ bool Flyer::isAlive() const
 
 QPixmap Flyer::picture() const
 {
-    return m_picture;
+    return m_scaledPicture;
 }
 
 void Flyer::setAlive(bool alive)

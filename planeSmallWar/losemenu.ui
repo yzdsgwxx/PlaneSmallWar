@@ -27,7 +27,7 @@ border:0px;
 }
 QPushButton {
 color:white;
-background-color:rgb(85, 255, 255);
+border:0px;
 }
 * {
 font-family:DOUYU font
@@ -138,24 +138,40 @@ font-family:DOUYU font
             <item>
              <widget class="QPushButton" name="btn_backToStart">
               <property name="styleSheet">
-               <string notr="true">QPushButton {
-background:url(:/images/backToStart.png);
-}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="res.qrc">
+                <normaloff>:/images/backToStart.png</normaloff>:/images/backToStart.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>132</width>
+                <height>32</height>
+               </size>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="btn_reStart">
               <property name="styleSheet">
-               <string notr="true">QPushButton {
-background:url(:/images/restart.png),left;
-}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="res.qrc">
+                <normaloff>:/images/restart.png</normaloff>:/images/restart.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>132</width>
+                <height>32</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -196,6 +212,8 @@ background:url(:/images/restart.png),left;
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

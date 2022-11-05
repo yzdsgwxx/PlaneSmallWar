@@ -55,5 +55,6 @@
         <file>images/hpbar.png</file>
         <file>images/supply-invincible.png</file>
         <file>images/bullet2.png</file>
+        <file>images/bullet0.png</file>
     </qresource>
 </RCC>

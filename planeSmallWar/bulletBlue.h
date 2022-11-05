@@ -5,6 +5,5 @@ class BulletBlue :
 {
 public:
     BulletBlue(QWidget *parent = nullptr);
-    void born() override;
 };
 

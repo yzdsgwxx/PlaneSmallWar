@@ -11,7 +11,7 @@ public:
 
 public:
     void fly()override;
-    void ProcessPicture();
+    virtual void ProcessPicture();
     void setAngle(double angle);
     void setDamage(double damage);
     double angle() const;
